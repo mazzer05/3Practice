@@ -5,10 +5,156 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Каталог товаров</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            border: 1px solid #ccc;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .chat-header {
+            background: #f0f0f0;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+        }
+        .chat-input input {
+            flex-grow: 1;
+            padding: 5px;
+        }
+        .chat-input button {
+            margin-left: 5px;
+        }
+    </style>
 </head>
 <body>
     <h1>Каталог товаров</h1>
     <div id="products"></div>
+    
+    <div class="chat-container">
+        <div class="chat-header" onclick="toggleChat()">Чат поддержки ▼</div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Введите сообщение...">
+            <button onclick="sendMessage()">Отправить</button>
+        </div>
+    </div>
+    
     <script src="script.js"></script>
+    <script>
+        // WebSocket соединение
+        const ws = new WebSocket('ws://localhost:4000');
+        
+        // Обработка входящих сообщений
+        ws.onmessage = (event) => {
+            const messages = document.getElementById('chatMessages');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = event.data;
+            messages.appendChild(messageElement);
+            messages.scrollTop = messages.scrollHeight;
+        };
+        
+        // Функция отправки сообщения
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            if (input.value.trim() !== '') {
+                ws.send(input.value);
+                input.value = '';
+            }
+        }
+        
+        // Отправка по Enter
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Переключение видимости чата
+        function toggleChat() {
+            const messages = document.getElementById('chatMessages');
+            const header = document.querySelector('.chat-header');
+            if (messages.style.display === 'none') {
+                messages.style.display = 'block';
+                header.textContent = 'Чат поддержки ▼';
+            } else {
+                messages.style.display = 'none';
+                header.textContent = 'Чат поддержки ▶';
+            }
+        }
+    </script>
+   <script>
+    // Глобальная переменная для WebSocket
+    let ws;
+    
+    // Функция подключения с автоматическим реконнектом
+    function connectWebSocket() {
+      ws = new WebSocket('ws://localhost:4000');
+      
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+        appendMessage('Система: Вы подключены к чату поддержки');
+      };
+      
+      ws.onmessage = (event) => {
+        appendMessage(event.data);
+      };
+      
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        appendMessage('Система: Ошибка соединения');
+      };
+      
+      ws.onclose = () => {
+        console.log('WebSocket disconnected');
+        appendMessage('Система: Соединение прервано. Переподключение...');
+        setTimeout(connectWebSocket, 3000);
+      };
+    }
+    
+    // Функция добавления сообщения
+    function appendMessage(message) {
+      const messages = document.getElementById('chatMessages');
+      const messageElement = document.createElement('div');
+      messageElement.textContent = message;
+      messages.appendChild(messageElement);
+      messages.scrollTop = messages.scrollHeight;
+    }
+    
+    // Функция отправки сообщения
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('Соединение не установлено. Попробуйте позже.');
+        return;
+      }
+      
+      if (input.value.trim() !== '') {
+        ws.send(input.value);
+        input.value = '';
+      }
+    }
+    
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+      connectWebSocket();
+      
+      // Обработчик отправки по Enter
+      document.getElementById('chatInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+      });
+    });
+  </script>
 </body>
 </html>

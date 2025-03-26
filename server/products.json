@@ -9,18 +9,9 @@
     ]
   },
   {
-    "id": 3,
-    "name": "Товар 3",
-    "price": 4,
-    "description": "Описание товара 3",
-    "categories": [
-      "Категория 1"
-    ]
-  },
-  {
     "id": 4,
     "name": "Товар 4",
-    "price": 400,
+    "price": 22,
     "description": "Описание товара 4",
     "categories": [
       "Категория 1"
@@ -36,12 +27,21 @@
     ]
   },
   {
-    "name": "cbvhbjk",
-    "price": 6,
-    "description": "5",
+    "name": "Товар",
+    "price": 2222,
+    "description": "товар",
     "categories": [
-      "5"
+      "Категория 3"
     ],
-    "id": 6
+    "id": 5
+  },
+  {
+    "id": 6,
+    "name": "asas",
+    "price": 2222,
+    "description": "aaaa",
+    "categories": [
+      "222"
+    ]
   }
 ]
